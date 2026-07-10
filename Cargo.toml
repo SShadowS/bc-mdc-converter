@@ -1,0 +1,22 @@
+[package]
+name = "bc_mdc_converter"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "bc-mdc-converter"
+path = "src/main.rs"
+
+[lib]
+name = "bc_mdc_converter"
+path = "src/lib.rs"
+
+[dependencies]
+zip = { version = "2", default-features = false, features = ["deflate"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
