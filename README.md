@@ -35,6 +35,8 @@ It replaces the .NET shim that `bc-dev-mcp` shells out to for `bcdev_profile { k
 
 ## Installation
 
+Prebuilt binaries for Windows and Linux (static musl) are on the [Releases](https://github.com/SShadowS/bc-mdc-converter/releases) page. Or build from source:
+
 ```
 cargo build --release
 ```
