@@ -20,10 +20,29 @@ jobs:
             target: x86_64-unknown-linux-musl
             artifact: bc-mdc-converter-linux-x64
             binary: bc-mdc-converter
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-musl
+            artifact: bc-mdc-converter-linux-arm64
+            binary: bc-mdc-converter
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             artifact: bc-mdc-converter-windows-x64.exe
             binary: bc-mdc-converter.exe
+          - os: windows-11-arm
+            target: aarch64-pc-windows-msvc
+            artifact: bc-mdc-converter-windows-arm64.exe
+            binary: bc-mdc-converter.exe
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact: bc-mdc-converter-macos-arm64
+            binary: bc-mdc-converter
+          # Intel macOS runners are retired; cross-compile from Apple Silicon.
+          # Tests are skipped for this target (build-only).
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact: bc-mdc-converter-macos-x64
+            binary: bc-mdc-converter
+            skip-tests: true
     steps:
       - uses: actions/checkout@v4
 
@@ -31,10 +50,19 @@ jobs:
         if: contains(matrix.target, 'musl')
         run: sudo apt-get update && sudo apt-get install -y musl-tools
 
+      - name: Ensure Rust toolchain
+        shell: bash
+        run: |
+          if ! command -v cargo >/dev/null 2>&1; then
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+            echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+          fi
+
       - name: Add Rust target
         run: rustup target add ${{ matrix.target }}
 
       - name: Test
+        if: matrix.skip-tests != true
         run: cargo test --locked
 
       - name: Build release binary
