@@ -52,3 +52,29 @@ fn cli_converts_tiny_to_ir_json() {
     assert_eq!(p["capture"]["invocationCount"], 1639);
     let _ = std::fs::remove_file(&out);
 }
+
+#[test]
+fn cli_version_and_formats() {
+    let v = Command::new(bin()).arg("--version").output().unwrap();
+    assert!(v.status.success());
+    assert_eq!(String::from_utf8(v.stdout).unwrap().trim(), format!("bc-mdc-converter {}", env!("CARGO_PKG_VERSION")));
+    let f = Command::new(bin()).arg("--formats").output().unwrap();
+    assert_eq!(String::from_utf8(f.stdout).unwrap(), "v8\nfirefox\nir-json\nsnapshot-json\n");
+}
+
+#[test]
+fn cli_snapshot_json_writes_file_and_deletes_partial_on_error() {
+    let out = std::env::temp_dir().join("bcmdc_snapshot_test.json");
+    let ok = Command::new(bin())
+        .arg(common::fixtures_dir().join("snapshot-page-exception.zip")).arg(&out)
+        .arg("--format").arg("snapshot-json").status().unwrap();
+    assert!(ok.success());
+    let j: serde_json::Value = serde_json::from_slice(&std::fs::read(&out).unwrap()).unwrap();
+    assert_eq!(j["format"], "bc-mdc-snapshot");
+    let bad_in = std::env::temp_dir().join("bcmdc_not_a_zip.zip");
+    std::fs::write(&bad_in, b"nope").unwrap();
+    let bad = Command::new(bin()).arg(&bad_in).arg(&out).arg("--format").arg("snapshot-json").output().unwrap();
+    assert!(!bad.status.success());
+    assert!(!out.exists(), "partial output must be deleted");
+    let _ = std::fs::remove_file(&bad_in);
+}

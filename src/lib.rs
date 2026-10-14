@@ -9,6 +9,7 @@ pub mod ir;
 pub mod build_ir;
 pub mod hash;
 pub mod emit;
+pub mod snapshot_json;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum OutputFormat { V8, Firefox, IrJson }

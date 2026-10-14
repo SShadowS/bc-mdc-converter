@@ -55,6 +55,9 @@ impl<'a> Table<'a> {
     pub fn scalar_i32(&self, id: u16, default: i32) -> i32 {
         self.field_offset(id).map(|o| i32le(self.buf, o)).unwrap_or(default)
     }
+    pub fn scalar_i64(&self, id: u16, default: i64) -> i64 {
+        self.field_offset(id).map(|o| i64le(self.buf, o)).unwrap_or(default)
+    }
     pub fn string(&self, id: u16) -> Option<&'a str> {
         let fo = self.field_offset(id)?;
         let p = fo + i32le(self.buf, fo) as usize; // follow uoffset

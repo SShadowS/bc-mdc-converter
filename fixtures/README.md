@@ -42,3 +42,9 @@ converter <name>.mdc.zip out.alcpuprofile   # then structural-diff vs <name>.ref
   — documented in `manifest.md`.
 - All from a throwaway CRONUS demo container — no sensitive content. Capture more via
   bc-dev-mcp `bcdev_profile { kind:"instrumentation" }` against Cronus28 if needed.
+
+## snapshot-page-exception.zip
+Debugging snapshot (ExecutionContext=Debugging, SnapshotVerbosity=SnapPoint) from Cronus29 (BC29, runtime 18.0), 2026-10-14:
+Trigger Zoo page 50152 opened from a WebClient session, snappoint on line 35 (wire line 34). Entries: `228.mdc`,
+`Page%50152.al`, `version`. One method (`OnOpenPage`), line contexts [0] span 34:8-34:44 (`PageLocalText = ''`)
+and [1] span 35:8-35:39 (`PageLocalText = 'page trigger zoo'`), exception `page OnOpenPage break` with line_number 1.

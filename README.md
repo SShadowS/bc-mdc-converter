@@ -12,7 +12,7 @@ Standalone Rust converter that turns a Business Central instrumentation snapshot
 | Runtime dependencies | Zero (no .NET, no `dotnet`, no `flatc`) |
 | Build dependencies | 3 crates (`zip`, `serde`, `serde_json`) |
 | Binary size | ~556 KB (release, Windows) |
-| Output formats | 3 (`v8`, `firefox`, `ir-json`) |
+| Output formats | 4 (`v8`, `firefox`, `ir-json`, `snapshot-json`) |
 | Tests | 64 (incl. byte-identity acceptance against 5 real fixtures) |
 
 It replaces the .NET shim that `bc-dev-mcp` shells out to for `bcdev_profile { kind:"instrumentation" }` — turning instrumentation profiling into a single dependency-free binary.
@@ -46,7 +46,8 @@ Binary lands at `target/release/bc-mdc-converter`. Run tests (including the byte
 ## Usage
 
 ```
-bc-mdc-converter <in.mdc.zip> <out> [--format v8|firefox|ir-json]
+bc-mdc-converter <in.mdc.zip> <out> [--format v8|firefox|ir-json|snapshot-json]
+bc-mdc-converter --version | --formats
 ```
 
 Example:
@@ -60,6 +61,7 @@ bc-mdc-converter fixtures/instr.mdc.zip out.alcpuprofile
 | `v8` (default) | `.alcpuprofile` — V8 / Chrome-DevTools CPU profile JSON with BC extensions, written as raw bytes (no BOM, no trailing newline) | Byte-identical to the official AL tooling's output for all 5 fixtures |
 | `firefox` | Firefox Profiler processed profile — drag-and-drop into [profiler.firefox.com](https://profiler.firefox.com) | Loads correctly in the profiler (not byte-referenced against a reference fixture) |
 | `ir-json` | Lossless, versioned JSON export of the un-aggregated IR — one row per invocation with rebased tick spans, temporal call tree (`temporalParentIx`), exact self time (`selfTicks`), per-statement line hits, exceptions. Suggested extension: `.ir.json` | Versioned schema (`schemaVersion: 1`); emitter source `src/emit/ir_json.rs` |
+| `snapshot-json` | Lossless JSON of a debugging snapshot (snappoints / exceptions): every method context with its line contexts, variable trees, exception and the bundled AL source names. Spans are 0-based as stored. Suggested extension: `.snapshot.json` | Versioned schema (`schemaVersion: 1`); source `src/snapshot_json.rs` |
 
 - Default format is `v8` regardless of `<out>`'s extension.
 - Exit code `0` on success; any error (bad args, missing/malformed input, unrecognized `--format`) prints a message to stderr plus the usage line and exits non-zero. `-h` / `--help` prints usage and exits `0`.
